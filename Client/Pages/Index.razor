@@ -1,0 +1,43 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client 
+@inject NavigationManager NM
+
+
+<h1>Hello, world!</h1>
+<p>@NM.Uri</p>
+<p>@NM.ToAbsoluteUri("nestoNesto")</p>
+
+<EditForm Model="_un" OnSubmit="Nesto">
+    <InputText @bind-Value="_un.Tekst"/>
+    <InputNumber @bind-Value="_un.Broj"/>
+    <button class="btn-danger" type="submit" >Test za signalR</button>
+</EditForm>
+Welcome to your new app.
+
+@code
+{
+    private HubConnection _hc;
+    private Unos _un = new Unos();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hc = new HubConnectionBuilder()
+            .WithUrl(NM.ToAbsoluteUri("zklj"))
+            .Build();
+
+        await _hc.StartAsync();
+    }
+
+    private void Nesto()
+    {
+        _hc.SendAsync("Foo", _un.Tekst, _un.Broj);
+        _un = new Unos();
+    }
+
+    public class Unos
+    {
+        public string Tekst { get; set; }
+        public int Broj { get; set; }
+    }
+}
+
